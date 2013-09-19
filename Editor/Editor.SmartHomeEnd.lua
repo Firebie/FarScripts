@@ -1,23 +1,64 @@
-local function SelectBlock(info, sel, pos, blockType)
-   
-  if not sel then
-    if pos > info.CurPos then
-      editor.Select(info.EditorId, blockType, info.CurLine, info.CurPos, pos - info.CurPos, 1)
-    else
-      editor.Select(info.EditorId, blockType, info.CurLine, pos, info.CurPos - pos, 1)  
-    end
-  else
-    if info.CurLine < sel.EndLine or (info.CurLine == sel.EndLine and info.CurPos < sel.EndPos) then
-      if info.CurLine == sel.EndLine and (pos - 1) == sel.EndPos then
-        editor.Select(info.EditorId, 0)
+
+local function EditorSelect(editorId, blockType, startLine, startPos, linesCount, posCount)
+   editor.Select(
+    editorId, 
+    blockType, 
+    startLine, 
+    startPos, 
+    linesCount, 
+    posCount)
+end
+
+local function EditorClearSelection(editorId)
+  editor.Select(editorId, 0)
+end
+
+local function SelectBlock(info, sel, curPos, blockType)
+  
+  local curLine = info.CurLine
+
+  if sel then
+     
+    -- we either had cursor at the block begin or at the block end
+		if curLine == sel.StartLine and info.CurPos == sel.StartPos then
+      
+      -- so, cursor was the block begin, 
+      -- so, we lock block end
+      if curLine == sel.EndLine and curPos == sel.EndPos then
+        EditorClearSelection(info.EditorId)
+      elseif curLine < sel.EndLine or (curLine == sel.EndLine and (curPos - 1) < sel.EndPos) then
+        -- mark from curPos to block end
+        EditorSelect(info.EditorId, blockType, curLine, curPos, sel.EndPos - curPos + 1, sel.EndLine - curLine + 1)
       else
-        editor.Select(info.EditorId, blockType, info.CurLine, pos, sel.EndPos - pos + 1, sel.EndLine - info.CurLine + 1)
+        -- mark from block end to curPos
+        EditorSelect(info.EditorId, blockType, sel.EndLine, sel.EndPos + 1, curPos - sel.EndPos - 1, curLine - sel.EndLine + 1)
       end
     else
-      editor.Select(info.EditorId, blockType, sel.StartLine, sel.StartPos, pos - sel.StartPos, info.CurLine - sel.StartLine + 1)
+      -- so, cursor was the block end
+      -- so, we lock block begin
+      if curLine == sel.StartLine and curPos == sel.StartPos then
+        EditorClearSelection(info.EditorId)
+      elseif curLine < sel.StartLine or (curLine == sel.StartLine and curPos < sel.StartPos) then
+        -- mark from curPos to block begin
+        EditorSelect(info.EditorId, blockType, curLine, curPos, sel.StartPos - curPos, sel.StartLine - curLine + 1)
+      else
+        -- mark from block begin to curPos
+        EditorSelect(info.EditorId, blockType, sel.StartLine, sel.StartPos, curPos - sel.StartPos, curLine - sel.StartLine + 1)
+      end
+    end
+  else
+    -- no selection block
+    	
+    if curPos == info.CurPos then
+      EditorClearSelection(info.EditorId)
+    elseif curPos < info.CurPos then
+      EditorSelect(info.EditorId, blockType, curLine, curPos, info.CurPos - curPos, 1)
+    else
+      EditorSelect(info.EditorId, blockType, curLine, info.CurPos, curPos - info.CurPos, 1)
     end
   end
-end
+    
+end;
 
 local function SmartHome(select, blockType)
   
