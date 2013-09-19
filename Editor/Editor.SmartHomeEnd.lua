@@ -19,10 +19,8 @@ local function SelectBlock(info, sel, curPos, blockType)
   local curLine = info.CurLine
 
   if sel then
-     
     -- we either had cursor at the block begin or at the block end
 		if curLine == sel.StartLine and info.CurPos == sel.StartPos then
-      
       -- so, cursor was the block begin, 
       -- so, we lock block end
       if curLine == sel.EndLine and curPos == sel.EndPos then
@@ -49,7 +47,6 @@ local function SelectBlock(info, sel, curPos, blockType)
     end
   else
     -- no selection block
-    	
     if curPos == info.CurPos then
       EditorClearSelection(info.EditorId)
     elseif curPos < info.CurPos then
@@ -58,7 +55,6 @@ local function SelectBlock(info, sel, curPos, blockType)
       EditorSelect(info.EditorId, blockType, curLine, info.CurPos, curPos - info.CurPos, 1)
     end
   end
-    
 end;
 
 local function SmartHome(select, blockType)
