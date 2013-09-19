@@ -1,4 +1,4 @@
--- ver 1.1
+-- ver 1.2 
 
 local function EditorSelect(editorId, blockType, startLine, startPos, linesCount, posCount)
    editor.Select(
@@ -14,13 +14,15 @@ local function EditorClearSelection(editorId)
   editor.Select(editorId, 0)
 end
 
-local function SelectBlock(info, sel, curPos, blockType)
+local function SelectBlock(info, sel, curPos, blockType, persistentBlocks)
   
   local curLine = info.CurLine
 
-  if sel then
+  if sel and not persistentBlocks then
+     
     -- we either had cursor at the block begin or at the block end
 		if curLine == sel.StartLine and info.CurPos == sel.StartPos then
+      
       -- so, cursor was the block begin, 
       -- so, we lock block end
       if curLine == sel.EndLine and curPos == sel.EndPos then
@@ -47,6 +49,7 @@ local function SelectBlock(info, sel, curPos, blockType)
     end
   else
     -- no selection block
+    	
     if curPos == info.CurPos then
       EditorClearSelection(info.EditorId)
     elseif curPos < info.CurPos then
@@ -55,6 +58,7 @@ local function SelectBlock(info, sel, curPos, blockType)
       EditorSelect(info.EditorId, blockType, curLine, info.CurPos, curPos - info.CurPos, 1)
     end
   end
+    
 end;
 
 local function SmartHome(select, blockType)
@@ -63,6 +67,7 @@ local function SmartHome(select, blockType)
   
   local info = editor.GetInfo()
   local sel  = editor.GetSelection()
+  local persistentBlocks = band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) ~= 0; 
     
   if info then
     local str = editor.GetString(-1, info.CurLine)
@@ -81,7 +86,7 @@ local function SmartHome(select, blockType)
           
         editor.SetPosition(info.EditorId, info.CurLine, pos)
         if (select) then
-          SelectBlock(info, sel, pos, blockType)
+          SelectBlock(info, sel, pos, blockType, persistentBlocks)
         elseif band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) == 0 then
           editor.Select(info.EditorId, 0)
         end  
@@ -104,6 +109,7 @@ local function SmartEnd(select, blockType)
 
   local info = editor.GetInfo()
   local sel  = editor.GetSelection()
+  local persistentBlocks = band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) ~= 0;
 
   if info then
     local str = editor.GetString(-1, info.CurLine)
@@ -122,7 +128,7 @@ local function SmartEnd(select, blockType)
         editor.SetPosition(info.EditorId, info.CurLine, pos)
 
         if (select) then
-          SelectBlock(info, sel, pos, blockType)
+          SelectBlock(info, sel, pos, blockType, persistentBlocks)
         elseif band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) == 0 then
           editor.Select(info.EditorId, 0)
         end
