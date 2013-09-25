@@ -1,4 +1,3 @@
--- ver 1.2 
 
 local function EditorSelect(editorId, blockType, startLine, startPos, linesCount, posCount)
    editor.Select(
@@ -122,7 +121,7 @@ local function SmartEnd(select, blockType)
       if c ~= " " and c ~= "\t" then
         local pos = i + 1
         if pos == info.CurPos then
-          pos = string.len(s) + 1
+          pos = len + 1
         end
           
         editor.SetPosition(info.EditorId, info.CurLine, pos)
