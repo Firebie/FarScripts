@@ -62,11 +62,11 @@ end;
 
 local function SmartHome(select, blockType)
   
-  blockType = blockType or far.Flags.BTYPE_STREAM 
+  blockType = blockType or far.Flags.BTYPE_STREAM
   
   local info = editor.GetInfo()
   local sel  = editor.GetSelection()
-  local persistentBlocks = band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) ~= 0; 
+  local persistentBlocks = band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) ~= 0;
     
   if info then
     local str = editor.GetString(-1, info.CurLine)
@@ -76,7 +76,7 @@ local function SmartHome(select, blockType)
       
     for i = 1, len do
       local c = s:sub(i, i)
-      if c ~= " " and c ~= "\t" then
+      if not c:match("%s") then
         
         local pos = i
         if pos == info.CurPos then
@@ -118,7 +118,7 @@ local function SmartEnd(select, blockType)
       
     for i = len, 1, -1 do
       local c = s:sub(i, i)
-      if c ~= " " and c ~= "\t" then
+      if not c:match("%s") then
         local pos = i + 1
         if pos == info.CurPos then
           pos = len + 1
