@@ -1,4 +1,4 @@
--- version 1.3
+-- version 1.4
 
 local function EditorSelect(editorId, blockType, startLine, startPos, linesCount, posCount)
    editor.Select(
@@ -78,7 +78,8 @@ local function SmartHome(select, blockType)
     for i = 1, len do
       local c = s:sub(i, i)
       if not c:match("%s") then
-        
+
+        pos = i
         if pos == info.CurPos then
           pos = 1
         end
@@ -113,12 +114,13 @@ local function SmartEnd(select, blockType)
 
     for i = len, 1, -1 do
       local c = s:sub(i, i)
-      if not c:match("%s") then
-        
+      if not c:match("%s") then 
+
+        pos = i + 1
         if pos == info.CurPos then
           pos = len + 1
         end
-  
+
         break
       end
     end
