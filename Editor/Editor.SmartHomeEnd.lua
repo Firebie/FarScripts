@@ -1,3 +1,4 @@
+-- version 1.3
 
 local function EditorSelect(editorId, blockType, startLine, startPos, linesCount, posCount)
    editor.Select(
