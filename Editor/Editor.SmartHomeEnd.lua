@@ -20,7 +20,7 @@ local function SelectBlock(info, sel, curPos, blockType, persistentBlocks)
   if sel and not persistentBlocks then
      
     -- we either had cursor at the block begin or at the block end
-		if curLine == sel.StartLine and info.CurPos == sel.StartPos then
+    if curLine == sel.StartLine and info.CurPos == sel.StartPos then
       
       -- so, cursor was the block begin, 
       -- so, we lock block end
@@ -48,7 +48,7 @@ local function SelectBlock(info, sel, curPos, blockType, persistentBlocks)
     end
   else
     -- no selection block
-    	
+    
     if curPos == info.CurPos then
       EditorClearSelection(info.EditorId)
     elseif curPos < info.CurPos then
@@ -72,33 +72,27 @@ local function SmartHome(select, blockType)
     local str = editor.GetString(-1, info.CurLine)
     local s = str.StringText
     local len = s:len()
-    local set = false 
-      
+    local pos = 1
+
     for i = 1, len do
       local c = s:sub(i, i)
       if not c:match("%s") then
         
-        local pos = i
         if pos == info.CurPos then
           pos = 1
         end
           
-        editor.SetPosition(info.EditorId, info.CurLine, pos)
-        if (select) then
-          SelectBlock(info, sel, pos, blockType, persistentBlocks)
-        elseif band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) == 0 then
-          editor.Select(info.EditorId, 0)
-        end  
-
-        set = true
         break
       end
     end
- 
-    if not set then
-      editor.SetPosition(info.EditorId, info.CurLine, 1)
+
+    editor.SetPosition(info.EditorId, info.CurLine, pos)
+    if (select) then
+      SelectBlock(info, sel, pos, blockType, persistentBlocks)
+    elseif band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) == 0 then
+      editor.Select(info.EditorId, 0)
     end
-    
+
   end
 end
 
@@ -114,33 +108,29 @@ local function SmartEnd(select, blockType)
     local str = editor.GetString(-1, info.CurLine)
     local s = str.StringText
     local len = s:len()
-    local set = false
-      
+    local pos = len + 1
+
     for i = len, 1, -1 do
       local c = s:sub(i, i)
       if not c:match("%s") then
-        local pos = i + 1
+        
         if pos == info.CurPos then
           pos = len + 1
         end
-          
-        editor.SetPosition(info.EditorId, info.CurLine, pos)
-
-        if (select) then
-          SelectBlock(info, sel, pos, blockType, persistentBlocks)
-        elseif band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) == 0 then
-          editor.Select(info.EditorId, 0)
-        end
-
-        set = true
+  
         break
       end
     end
 
-    if not set then
-      editor.SetPosition(info.EditorId, info.CurLine, len + 1)
+    editor.SetPosition(info.EditorId, info.CurLine, pos)
+  
+    if (select) then
+      SelectBlock(info, sel, pos, blockType, persistentBlocks)
+    elseif band(info.Options, far.Flags.EOPT_PERSISTENTBLOCKS) == 0 then
+      editor.Select(info.EditorId, 0)
     end
- end
+
+  end
 end
 
 
